@@ -1,0 +1,155 @@
+﻿@model ECommerce.ViewModels.ThanhToanViewModel
+
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Thanh toán</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a asp-action="" asp-controller="Home">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-action="" asp-controller="HangHoa">Hàng hoá</a></li>
+        <li class="breadcrumb-item"><a asp-action="" asp-controller="GioHang">Giỏ hàng</a></li>
+        <li class="breadcrumb-item active text-white">Thủ tục thanh toán</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <h1 class="mb-4">Chi tiết hoá đơn</h1>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-info">
+                @TempData["Message"]
+            </div>
+        }
+
+        @if (ViewData["Errors"] != null)
+        {
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach (var error in ViewData["Errors"] as List<string>)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+        <form asp-controller="GioHang" asp-action="ThanhToan" method="post">
+            <div class="row g-5">
+                <div class="col-md-12 col-lg-6 col-xl-7">
+                    <div class="form-item">
+                        <label class="form-label my-3">Người nhận hàng<sup>*</sup></label>
+                        <input asp-for="HoTen" class="form-control">
+                        <span asp-validation-for="HoTen" class="text-danger"></span>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Địa chỉ nhận hàng<sup>*</sup></label>
+                        <input asp-for="DiaChi" class="form-control">
+                        <span asp-validation-for="DiaChi" class="text-danger"></span>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Điện thoại<sup>*</sup></label>
+                        <input asp-for="DienThoai" class="form-control">
+                        <span asp-validation-for="DienThoai" class="text-danger"></span>
+                    </div>
+                    <div class="form-item mt-2">
+                        <textarea asp-for="GhiChu" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Ghi chú"></textarea>
+                    </div>
+                    <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+                        <input type="submit" name="payment" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary" value="Thanh toán VNPay">
+                        <input type="submit" name="payment" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary" value="Mua hàng (COD)">
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-5">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sản phẩm</th>
+                                    <th scope="col">Tên</th>
+                                    <th scope="col">Giá</th>
+                                    <th scope="col">Số lượng</th>
+                                    <th scope="col">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.GioHangItems != null && Model.GioHangItems.Any())
+                                {
+                                    for (int i = 0; i < Model.GioHangItems.Count; i++)
+                                    {
+                                        <tr>
+                                            <th scope="row">
+                                                <div class="d-flex align-items-center mt-2">
+                                                    <img src="~/img/HangHoa/@Model.GioHangItems[i].Hinh" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="@Model.GioHangItems[i].TenHh">
+                                                </div>
+                                            </th>
+                                            <td class="py-5">@Model.GioHangItems[i].TenHh</td>
+                                            <td class="py-5">@Model.GioHangItems[i].DonGia.ToString("N0") đ</td>
+                                            <td class="py-5">@Model.GioHangItems[i].SoLuongMua</td>
+                                            <td class="py-5">@Model.GioHangItems[i].ThanhTien.ToString("N0") đ</td>
+                                            <input type="hidden" asp-for="GioHangItems[i].MaHh" />
+                                            <input type="hidden" asp-for="GioHangItems[i].TenHh" />
+                                            <input type="hidden" asp-for="GioHangItems[i].Hinh" />
+                                            <input type="hidden" asp-for="GioHangItems[i].DonGia" />
+                                            <input type="hidden" asp-for="GioHangItems[i].SoLuong" />
+                                            <input type="hidden" asp-for="GioHangItems[i].SoLuongMua" />
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <th scope="row"></th>
+                                        <td class="py-5"></td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5">
+                                            <p class="mb-0 text-dark py-3">Tổng phụ</p>
+                                        </td>
+                                        <td class="py-5">
+                                            <div class="py-3 border-bottom border-top">
+                                                <p class="mb-0 text-dark">@Model.GioHangItems.Sum(p => p.ThanhTien).ToString("N0") đ</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"></th>
+                                        <td class="py-5"></td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5">
+                                            <p class="mb-0 text-dark py-3">Phí ship</p>
+                                        </td>
+                                        <td class="py-5">
+                                            <div class="py-3 border-bottom border-top">
+                                                <p class="mb-0 text-dark">0đ</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"></th>
+                                        <td class="py-5">
+                                            <p class="mb-0 text-dark text-uppercase py-3">Tổng thanh toán</p>
+                                        </td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5"></td>
+                                        <td class="py-5">
+                                            <div class="py-3 border-bottom border-top">
+                                                <p class="mb-0 text-dark">@Model.GioHangItems.Sum(p => p.ThanhTien).ToString("N0") đ</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-danger text-center">Không có mặt hàng nào trong giỏ hàng.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
